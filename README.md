@@ -11,19 +11,19 @@ That gives you the pdf you want.
 It creates the output name based on what both filenames have in common.
 Best to name your files is for example:
 
-- fronts: your_document_name_1.pdf
-- backs: your_document_name_2.pdf
+- fronts: your_document_name1.pdf
+- backs: your_document_name2.pdf
 - output: your_document_name.pdf
 
 Or:
 
-- fronts: your_document_name_fronts.pdf
-- backs: your_document_name_backs.pdf
+- fronts: your_document_namefronts.pdf
+- backs: your_document_namebacks.pdf
 - output: your_document_name.pdf
 
 ## Usage
 
-`superscan document_fronts.pdf document_backs.pdf`
+`superscan fronts.pdf backs.pdf`
 
 ## Info
 
