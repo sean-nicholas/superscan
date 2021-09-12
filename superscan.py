@@ -10,7 +10,7 @@ import sys
 
 
 def usage():
-    print("Usage: {} fronts.pdf backs.pdf".format(__file__))
+    print("Usage: {} document_fronts.pdf document_backs.pdf".format(__file__))
 
 def load_pdf(filepath):
     corrected_filepath = os.path.expanduser(filepath)
