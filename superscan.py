@@ -1,9 +1,7 @@
 #!/usr/bin/python
 # coding: utf-8
 
-# write a PDF with its pages reversed into name_reversed.pdf
-# tested with Python 2.7.10 on macOS High Sierra 10.13.6
-# VikingOSX, 2019-01-19, Apple Support Communities, No warranties.
+# Inspired by https://discussions.apple.com/thread/250099677
 
 from Foundation import NSURL
 from Quartz import PDFDocument, PDFPage
@@ -12,36 +10,63 @@ import sys
 
 
 def usage():
-    print("Usage: {} file1.pdf … filen.pdf".format(__file__))
+    print("Usage: {} fronts.pdf backs.pdf".format(__file__))
 
+def load_pdf(filepath):
+    corrected_filepath = os.path.expanduser(filepath)
+    if not corrected_filepath.endswith('.pdf'):
+        raise Exception('PDF file type required')
+
+    url = NSURL.fileURLWithPath_(corrected_filepath)
+    pdf = PDFDocument.alloc().initWithURL_(url)
+
+    return pdf
+
+def get_filename_from_path(filepath):
+    basepath, ext = os.path.splitext(filepath)
+    filename = os.path.basename(basepath)
+    return filename
+
+def get_output_filename(filepath1, filepath2):
+    filename1 = get_filename_from_path(filepath1)
+    filename2 = get_filename_from_path(filepath2)
+    output_filename = ""
+    for i in range(0, min(len(filename1), len(filename2))):
+        char1 = filename1[i]
+        char2 = filename2[i]
+        if char1 == char2:
+            output_filename += char1
+
+    if (len(output_filename) == 0): return 'unnamed.pdf'
+
+    return output_filename + '.pdf'
 
 def main():
-    if len(sys.argv) < 2:
+    if len(sys.argv) != 3:
         usage()
         sys.exit(1)
 
-    for apdf in sys.argv[1:]:
-        pdf_file = os.path.expanduser(apdf)
-        if not pdf_file.endswith('.pdf'):
-            raise Exception('PDF file type required')
+    fronts_path = sys.argv[1]
+    backs_path = sys.argv[2]
 
-        # build output PDF filename
-        bpath, ext = os.path.splitext(pdf_file)
-        pdfrev = os.path.basename(bpath + '_reversed' + ext)
+    output_filename = get_output_filename(fronts_path, backs_path)
 
-        url = NSURL.fileURLWithPath_(pdf_file)
-        pdf = PDFDocument.alloc().initWithURL_(url)
-        pdf_out = PDFDocument.alloc().init()
-        page_cnt = pdf.pageCount()
-        pdf_page = PDFPage
+    fronts_pdf = load_pdf(fronts_path)
+    backs_pdf = load_pdf(backs_path)
 
-        # n is sequential page increase, r is the reversed page number
-        for n, r in enumerate(reversed(range(0, page_cnt))):
-            pdf_page = pdf.pageAtIndex_(r)
-            pdf_out.insertPage_atIndex_(pdf_page, n)
+    if fronts_pdf.pageCount() != backs_pdf.pageCount():
+        raise Exception('PDF file have different page length')
 
-        pdf_out.writeToFile_(pdfrev)
+    num_pages = fronts_pdf.pageCount()
+    pdf_out = PDFDocument.alloc().init()
 
+    for i in range(0, num_pages):
+        front_page = fronts_pdf.pageAtIndex_(i)
+        back_page = backs_pdf.pageAtIndex_(num_pages - i - 1)
+        pdf_out.insertPage_atIndex_(front_page, i * 2)
+        pdf_out.insertPage_atIndex_(back_page, i * 2 + 1)
+
+    pdf_out.writeToFile_(output_filename)
 
 if __name__ == '__main__':
     sys.exit(main())
