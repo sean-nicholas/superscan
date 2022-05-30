@@ -1,5 +1,6 @@
 import { createWriteStream } from 'fs'
 import { readFile } from 'fs/promises'
+import { isAbsolute } from 'path'
 import { Document, ExternalDocument } from 'pdfjs'
 
 run()
@@ -49,7 +50,12 @@ async function run() {
 }
 
 function getInputFiles() {
-  const files = process.argv.filter((arg) => arg.endsWith('.pdf'))
+  const files = process.argv
+    .filter((arg) => arg.endsWith('.pdf'))
+    .map((file) => {
+      if (isAbsolute(file)) return file
+      return `${process.cwd()}/${file}`
+    })
   if (files.length !== 2) throw new Error('Expected exactly 2 PDF files')
   const [frontPath, backPath] = files
   return {
