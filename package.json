@@ -1,0 +1,28 @@
+{
+  "name": "superscan",
+  "version": "1.0.0",
+  "description": "Merges 2 pdfs scanned on the document feeder by alternating and reversing pages.",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node superscan.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sean-nicholas/superscan.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sean-nicholas/superscan/issues"
+  },
+  "homepage": "https://github.com/sean-nicholas/superscan#readme",
+  "dependencies": {
+    "pdfjs": "^2.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.36",
+    "ts-node": "^10.8.0",
+    "typescript": "^4.7.2"
+  }
+}
