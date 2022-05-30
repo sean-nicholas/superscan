@@ -1,6 +1,5 @@
 import { createWriteStream } from 'fs'
 import { readFile } from 'fs/promises'
-import { basename } from 'path'
 import { Document, ExternalDocument } from 'pdfjs'
 
 run()
@@ -8,10 +7,10 @@ run()
   .catch(console.error)
 
 async function run() {
-  const { frontFile, backFile } = getInputFiles()
+  const { frontPath, backPath } = getInputFiles()
 
-  const frontPages = await loadPDF(frontFile)
-  const backPages = await loadPDF(backFile)
+  const frontPages = await loadPDF(frontPath)
+  const backPages = await loadPDF(backPath)
 
   if (frontPages.pageCount !== backPages.pageCount) {
     console.error(
@@ -31,9 +30,7 @@ async function run() {
 
   try {
     const writeStream = mergePdf.pipe(
-      createWriteStream(
-        '/Users/sean/Downloads/Gesetzliche_Rente_Renteninformation_2022.pdf',
-      ),
+      createWriteStream(getOutputFilePath({ frontPath, backPath })),
     )
     await mergePdf.end()
 
@@ -54,10 +51,10 @@ async function run() {
 function getInputFiles() {
   const files = process.argv.filter((arg) => arg.endsWith('.pdf'))
   if (files.length !== 2) throw new Error('Expected exactly 2 PDF files')
-  const [frontFile, backFile] = files
+  const [frontPath, backPath] = files
   return {
-    frontFile,
-    backFile,
+    frontPath,
+    backPath,
   }
 }
 
@@ -65,10 +62,23 @@ async function loadPDF(filePath: string) {
   const file = await readFile(filePath)
   const pdf = new ExternalDocument(file)
   const pageCount = (pdf as any).pageCount
-  const fileName = basename(filePath, '.pdf')
   return {
     pdf,
     pageCount,
-    fileName,
   }
+}
+
+function getOutputFilePath({
+  frontPath,
+  backPath,
+}: {
+  frontPath: string
+  backPath: string
+}) {
+  let outputFilePath = ''
+  for (let i = 0; i < frontPath.length; i++) {
+    if (frontPath[i] !== backPath[i]) break
+    outputFilePath += frontPath[i]
+  }
+  return `${outputFilePath}.pdf`
 }
