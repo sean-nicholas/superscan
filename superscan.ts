@@ -8,12 +8,10 @@ run()
   .catch(console.error)
 
 async function run() {
-  const frontPages = await loadPDF(
-    '/Users/sean/Downloads/Gesetzliche_Rente_Renteninformation_20221.pdf',
-  )
-  const backPages = await loadPDF(
-    '/Users/sean/Downloads/Gesetzliche_Rente_Renteninformation_20222.pdf',
-  )
+  const { frontFile, backFile } = getInputFiles()
+
+  const frontPages = await loadPDF(frontFile)
+  const backPages = await loadPDF(backFile)
 
   if (frontPages.pageCount !== backPages.pageCount) {
     console.error(
@@ -50,6 +48,16 @@ async function run() {
     await writeStreamClosedPromise
   } catch (error) {
     console.log(error)
+  }
+}
+
+function getInputFiles() {
+  const files = process.argv.filter((arg) => arg.endsWith('.pdf'))
+  if (files.length !== 2) throw new Error('Expected exactly 2 PDF files')
+  const [frontFile, backFile] = files
+  return {
+    frontFile,
+    backFile,
   }
 }
 
