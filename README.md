@@ -21,10 +21,12 @@ Or:
 - backs: your_document_namebacks.pdf
 - output: your_document_name.pdf
 
+## Setup
+
+- You need nodeJS (works with node v16)
+- Add `alias superscan="node [FULL_PATH_TO_SUPERSCAN_FOLDER]/superscan.js"` to you bash file
+- Restart your terminal
+
 ## Usage
 
 `superscan fronts.pdf backs.pdf`
-
-## Info
-
-Inspired by: https://discussions.apple.com/thread/250099677
