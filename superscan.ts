@@ -1,32 +1,34 @@
 import { createWriteStream } from 'fs'
 import { readFile } from 'fs/promises'
+import { basename } from 'path'
 import { Document, ExternalDocument } from 'pdfjs'
 
+run()
+  .then(() => console.log('🎉 Done'))
+  .catch(console.error)
+
 async function run() {
-  const file1 = await readFile(
+  const frontPages = await loadPDF(
     '/Users/sean/Downloads/Gesetzliche_Rente_Renteninformation_20221.pdf',
   )
-  const pdf1 = new ExternalDocument(file1)
-  const pdf1PageCount = (pdf1 as any).pageCount
-  const file2 = await readFile(
+  const backPages = await loadPDF(
     '/Users/sean/Downloads/Gesetzliche_Rente_Renteninformation_20222.pdf',
   )
-  const pdf2 = new ExternalDocument(file2)
-  const pdf2PageCount = (pdf2 as any).pageCount
 
-  if (pdf1PageCount !== pdf2PageCount) {
+  if (frontPages.pageCount !== backPages.pageCount) {
     console.error(
-      `Both PDFs have different number of pages. PDF 1: ${pdf1PageCount} PDF 2: ${pdf2PageCount}`,
+      `Both PDFs have different number of pages. PDF 1: ${frontPages.pageCount} PDF 2: ${backPages.pageCount}`,
     )
     return
   }
 
-  const pageCount = pdf1PageCount
+  const pageCount = frontPages.pageCount
 
   const mergePdf = new Document()
   for (let i = 1; i <= pageCount; i++) {
-    mergePdf.addPageOf(i, pdf1)
-    mergePdf.addPageOf(pageCount + 1 - i, pdf2)
+    mergePdf.addPageOf(i, frontPages.pdf)
+    // Add back pages in reverse order because they are scanned in reverse order
+    mergePdf.addPageOf(pageCount + 1 - i, backPages.pdf)
   }
 
   try {
@@ -51,6 +53,14 @@ async function run() {
   }
 }
 
-run()
-  .then(() => console.log('🎉 Done'))
-  .catch(console.error)
+async function loadPDF(filePath: string) {
+  const file = await readFile(filePath)
+  const pdf = new ExternalDocument(file)
+  const pageCount = (pdf as any).pageCount
+  const fileName = basename(filePath, '.pdf')
+  return {
+    pdf,
+    pageCount,
+    fileName,
+  }
+}
