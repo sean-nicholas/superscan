@@ -4,7 +4,8 @@
   "description": "Merges 2 pdfs scanned on the document feeder by alternating and reversing pages.",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node superscan.ts"
+    "start": "ts-node superscan.ts",
+    "build": "tsc superscan.ts"
   },
   "repository": {
     "type": "git",
